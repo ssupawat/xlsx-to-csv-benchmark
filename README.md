@@ -87,7 +87,7 @@ python scripts/02_generate_large.py
 # 3. Speed benchmark
 python scripts/03_bench_speed.py
 
-# 4. Memory benchmark (Linux only — uses /proc/<pid>/status)
+# 4. Memory benchmark
 python scripts/04_bench_memory.py
 
 # 5. Multi-sheet benchmark
@@ -100,7 +100,7 @@ python scripts/06_test_formulas.py
 ## Notes
 
 - Memory benchmark uses `psutil` for cross-platform RSS measurement (Linux, macOS, Windows).
-- LibreOffice `--convert-to csv` exports **first sheet only**. Multi-sheet results are projected from single-sheet measurements.
+- LibreOffice `--convert-to csv` exports **first sheet only**. Multi-sheet results are accurately projected from single-sheet measurements (peak memory = worst single sheet, not sum of all sheets).
 - `python-calamine` loads the full sheet into memory before streaming — memory scales linearly with file size.
 - `xlsx2csv` parses XML via SAX — memory stays constant (~14 MB) regardless of file size.
 
