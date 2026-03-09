@@ -136,7 +136,9 @@ def run_libreoffice_all_sheets(xlsx_path: str) -> tuple[float, int, float]:
 
     shutil.rmtree(out_dir, ignore_errors=True)
     projected_total = total_elapsed * len(sheet_names)
-    return projected_total, total_rows, worst_rss * len(sheet_names)
+    # Note: LibreOffice processes sheets sequentially, not simultaneously.
+    # Peak memory is the worst single sheet's RSS, not the sum of all sheets.
+    return projected_total, total_rows, worst_rss
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
