@@ -8,20 +8,21 @@ Benchmark comparing **python-calamine**, **xlsx2csv**, and **LibreOffice headles
 
 | Tool | 1K rows | 50K rows | 200K rows | 5×200K rows |
 |---|---|---|---|---|
-| **python-calamine** | **0.04s** 🥇 | **1.61s** 🥇 | **6.33s** 🥇 | **13.9s** 🥇 |
-| xlsx2csv | 0.12s | 5.15s | 20.1s | 38.9s |
-| libreoffice | 3.61s | 10.87s | 35.3s | 81.6s ⚠️ |
+| **python-calamine** | **0.016s** 🥇 | **0.870s** 🥇 | **3.009s** 🥇 | **8.47s** 🥇 |
+| libreoffice | 0.883s | 1.973s | 6.892s | 49.25s ⚠️ |
+| xlsx2csv | 0.053s | 2.557s | 9.424s | 26.19s |
 
 ### Memory (peak RSS)
 
 | Tool | 1K rows | 50K rows | 200K rows | 5×200K rows |
 |---|---|---|---|---|
-| **python-calamine** | 16 MB | 98 MB | 345 MB | 245 MB |
-| **xlsx2csv** | 22 MB | **21 MB** 🥇 | **21 MB** 🥇 | **21 MB** 🥇 |
-| libreoffice | 288 MB | 431 MB | 860 MB | 1,264 MB |
+| **python-calamine** | 0.1 MB | 90.9 MB | 335.0 MB | 196 MB |
+| **xlsx2csv** | **14.2 MB** 🥇 | **14.2 MB** 🥇 | **14.2 MB** 🥇 | **14 MB** 🥇 |
+| libreoffice | 154.1 MB | 295.2 MB | 701.1 MB | 1,153 MB |
 
-> **calamine** memory scales with file size (~4× of xlsx size).  
-> **xlsx2csv** uses streaming SAX parse → ~21 MB constant regardless of file size.
+> **calamine** memory scales with file size (~9× of xlsx size for large files).
+> **xlsx2csv** uses streaming SAX parse → ~14 MB constant regardless of file size.
+> **libreoffice** has high startup overhead and memory; multi-sheet exports first sheet only.
 
 ### Formula Handling
 
@@ -43,7 +44,7 @@ For live evaluation: use **LibreOffice** or the [`formulas`](https://github.com/
 |---|---|
 | Small–medium files, speed priority | **python-calamine** |
 | Lambda ≤ 256 MB or very large files | **xlsx2csv** |
-| 1M rows × 5 sheets on constrained RAM | **xlsx2csv** (calamine needs ~1.7 GB) |
+| 5×200K sheets on constrained RAM | **xlsx2csv** (14 MB constant) |
 | Multi-sheet export | **Do NOT use LibreOffice** (exports first sheet only) |
 | Files with uncached formulas | **LibreOffice** or `formulas` library |
 
@@ -99,11 +100,20 @@ python scripts/06_test_formulas.py
 ## Notes
 
 - Memory benchmark uses `psutil` for cross-platform RSS measurement (Linux, macOS, Windows).
-- LibreOffice `--convert-to csv` exports **first sheet only**. Full multi-sheet export requires `python-uno` or per-sheet invocation.
-- The 1M × 5 sheets scenario was extrapolated from single-sheet measurements; generating 5 × 1M rows takes ~6 minutes on a standard machine.
+- LibreOffice `--convert-to csv` exports **first sheet only**. Multi-sheet results are projected from single-sheet measurements.
 - `python-calamine` loads the full sheet into memory before streaming — memory scales linearly with file size.
-- `xlsx2csv` parses XML via SAX — memory stays constant (~21 MB) regardless of file size.
+- `xlsx2csv` parses XML via SAX — memory stays constant (~14 MB) regardless of file size.
 
 ## Environment
 
-Tested on Ubuntu 24.04, Python 3.12, LibreOffice 24.2.7.
+**Tested in Podman container:**
+- Base: `python:3.12-slim` (Debian Trixie)
+- Python: 3.12
+- LibreOffice: (Debian package, latest via apt)
+- Architecture: linux/arm64
+
+**To reproduce:**
+```bash
+podman build -t xlsx-benchmark .
+podman run --rm xlsx-benchmark
+```
