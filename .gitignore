@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Benchmark outputs
+data/*.xlsx
+data/*.csv
+*.csv
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

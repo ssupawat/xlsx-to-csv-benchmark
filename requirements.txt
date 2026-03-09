@@ -1,0 +1,5 @@
+python-calamine
+xlsx2csv
+openpyxl
+xlsxwriter
+psutil
