@@ -52,13 +52,29 @@ For live evaluation: use **LibreOffice** or the [`formulas`](https://github.com/
 ## Setup
 
 ```bash
-pip install python-calamine xlsx2csv openpyxl xlsxwriter
+pip install -r requirements.txt
 
 # LibreOffice (Ubuntu/Debian)
 sudo apt install libreoffice-calc libreoffice-core
+
+# LibreOffice (macOS)
+brew install --cask libreoffice
 ```
 
-## Usage
+## Quick Start
+
+Run all benchmarks at once:
+
+```bash
+# Local (requires LibreOffice installed)
+./run-all.sh
+
+# Docker (includes LibreOffice)
+docker build -t xlsx-benchmark .
+docker run --rm xlsx-benchmark
+```
+
+## Individual Benchmarks
 
 ```bash
 # 1. Generate test data
@@ -82,7 +98,7 @@ python scripts/06_test_formulas.py
 
 ## Notes
 
-- Memory benchmark uses `/proc/<pid>/status` (Linux only). macOS users can substitute `psutil.Process(pid).memory_info().rss`.
+- Memory benchmark uses `psutil` for cross-platform RSS measurement (Linux, macOS, Windows).
 - LibreOffice `--convert-to csv` exports **first sheet only**. Full multi-sheet export requires `python-uno` or per-sheet invocation.
 - The 1M × 5 sheets scenario was extrapolated from single-sheet measurements; generating 5 × 1M rows takes ~6 minutes on a standard machine.
 - `python-calamine` loads the full sheet into memory before streaming — memory scales linearly with file size.

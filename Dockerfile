@@ -12,9 +12,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy benchmark scripts
+# Copy benchmark scripts and run-all script
 COPY scripts/ scripts/
+COPY run-all.sh .
+RUN chmod +x run-all.sh
 COPY README.md .
 
-# Default: run speed benchmark
-CMD ["python3", "scripts/03_bench_speed.py"]
+# Default: run all benchmarks
+CMD ["./run-all.sh"]
